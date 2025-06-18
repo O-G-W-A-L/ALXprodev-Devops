@@ -1,12 +1,9 @@
 #!/bin/bash
 
-# List of Pokémon
 pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
 
-# Directory to save data
 mkdir -p pokemon_data
 
-# Fetch function with background execution
 fetch_pokemon() {
     local pokemon=$1
     echo "Fetching data for $pokemon..."
@@ -14,27 +11,24 @@ fetch_pokemon() {
     
     if [ "$response" = "200" ]; then
         mv "pokemon_data/$pokemon.json.tmp" "pokemon_data/$pokemon.json"
-        echo "Saved data to pokemon_data/$pokemon.json ✅"
+        echo "Saved data to pokemon_data/$pokemon.json"
     else
-        echo "❌ Failed to fetch $pokemon (HTTP $response)"
+        echo "Failed to fetch $pokemon (HTTP $response)"
         rm -f "pokemon_data/$pokemon.json.tmp"
     fi
 }
 
-# Launch each fetch as a background job
 for pokemon in "${pokemon_list[@]}"; do
     fetch_pokemon "$pokemon" &
 done
 
-# Confirm background jobs using `jobs`
-echo "🛠️ Running jobs:"
+echo "Running jobs:"
 jobs
 
-# Wait for all background processes to complete
 for job in $(jobs -p); do
     if kill -0 "$job" 2>/dev/null; then
         wait "$job"
     fi
 done
 
-echo "✅ All Pokémon data fetched."
+echo "All Pokémon data fetched."
